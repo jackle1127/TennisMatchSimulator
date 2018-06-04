@@ -1,1 +1,2 @@
 UnityProject/Assets/Scenes/court/ filter=lfs diff=lfs merge=lfs -text
+UnityProject/Assets/Scenes/court/LightingData.asset filter=lfs diff=lfs merge=lfs -text
