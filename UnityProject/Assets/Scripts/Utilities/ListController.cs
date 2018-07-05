@@ -11,7 +11,7 @@ public class ListController : MonoBehaviour
     [SerializeField] private Transform listContainer;
     [SerializeField] private List<ListItemInformationGroup> listItems;
 
-    private delegate void CallBack();
+    public delegate void OnClickEvent();
 
     private void Start()
     {
@@ -22,43 +22,37 @@ public class ListController : MonoBehaviour
     {
         if (!listContainer) return;
 
-        if (listContainer.childCount == 0)
+        for (int i = listContainer.childCount - 1; i >= 0; i--)
         {
-            PopulateList();
+            Destroy(listContainer.GetChild(i).gameObject);
         }
-        else
+
+        foreach (ListItemInformationGroup itemInfo in listItems)
         {
-            // Clear the list before populating.
-            for (int i = listContainer.childCount - 1; i >= 0; i--)
+            GameObject newItem = Instantiate(listItemPrefab, listContainer);
+            newItem.name = itemInfo.label;
+            newItem.GetComponentInChildren<Text>().text = itemInfo.label;
+            if (itemInfo.onClick != null)
             {
-                // Populate the list after the last item is removed.
-                if (i == 0)
-                {
-                    StartCoroutine(DestroyGameObject(listContainer.GetChild(i).gameObject, PopulateList));
-                }
-                else
-                {
-                    StartCoroutine(DestroyGameObject(listContainer.GetChild(i).gameObject, null));
-                }
+                newItem.GetComponent<Button>().onClick.AddListener(delegate () { itemInfo.onClick.Invoke(); });
             }
         }
     }
 
-    private void PopulateList()
+    public void Clear()
     {
-        foreach (ListItemInformationGroup itemInfo in listItems)
-        {
-            GameObject newItem = GameObject.Instantiate(listItemPrefab, listContainer);
-            newItem.name = itemInfo.label;
-            newItem.GetComponentInChildren<Text>().text = itemInfo.label;
-            newItem.GetComponent<Button>().onClick.AddListener(delegate () { itemInfo.onClick.Invoke(); });
-        }
+        listItems.Clear();
+        RefreshList();
     }
 
-    private IEnumerator DestroyGameObject(GameObject go, CallBack callBack)
+    public void AddItem(String label, OnClickEvent onClickEvent)
     {
-        yield return new WaitForEndOfFrame();
-        DestroyImmediate(go);
-        if (callBack != null) callBack();
+        ListItemInformationGroup newItem = new ListItemInformationGroup();
+        newItem.label = label;
+        if (onClickEvent != null)
+        {
+            newItem.onClick.AddListener(delegate () { onClickEvent(); });
+        }
+        listItems.Add(newItem);
     }
 }

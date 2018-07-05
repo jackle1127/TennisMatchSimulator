@@ -5,5 +5,5 @@ using UnityEngine.Events;
 public class ListItemInformationGroup
 {
     public string label;
-    public UnityEvent onClick;
+    public UnityEvent onClick = new UnityEvent();
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class VRInputModule : BaseInputModule
+public class VRInputModule : PointerInputModule
 {
     [SerializeField] private VRPointer[] pointers;
 
@@ -36,6 +36,9 @@ public class VRInputModule : BaseInputModule
 
     public override void Process()
     {
+        if (eventSystem.currentSelectedGameObject)
+            eventSystem.SetSelectedGameObject(null);
+
         foreach (VRPointer pointer in pointers)
         {
             SnapCameraToPointer(pointer);

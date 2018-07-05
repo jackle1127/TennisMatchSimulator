@@ -11,6 +11,7 @@ public class VRPointer : MonoBehaviour
     public PointerEventData pointerEventData;
     private GameObject prevHitObject;
     private GameObject pressedObject;
+    private GameObject draggedObject;
 
     [HideInInspector]
     public Hand controller;
@@ -38,30 +39,36 @@ public class VRPointer : MonoBehaviour
         GameObject hitObject = pointerEventData.pointerCurrentRaycast.gameObject;
         if (hitObject != null && prevHitObject != hitObject)
         {
-            controller.controller.TriggerHapticPulse((ushort) (handVibrationStrength / 6f));
-            PlaySound
+            controller.controller.TriggerHapticPulse((ushort)(handVibrationStrength / 6f));
         }
-        if (controller.controller.GetHairTrigger())
+        if (controller.controller.GetHairTriggerDown())
         {
+            pointerEventData.button = PointerEventData.InputButton.Left;
             pointerEventData.pressPosition = pointerEventData.position;
             pointerEventData.pointerPressRaycast = pointerEventData.pointerCurrentRaycast;
             if (hitObject)
             {
-                ExecuteEvents.ExecuteHierarchy(hitObject, pointerEventData, ExecuteEvents.pointerDownHandler);
+                GameObject currentPressed = ExecuteEvents.ExecuteHierarchy(hitObject, pointerEventData, ExecuteEvents.pointerDownHandler);
+                pointerEventData.pointerPress = currentPressed;
 
-                if (pressedObject != hitObject)
-                {
-                    controller.controller.TriggerHapticPulse((ushort) handVibrationStrength);
-                    ExecuteEvents.ExecuteHierarchy(hitObject, pointerEventData, ExecuteEvents.pointerClickHandler);
-                    pressedObject = hitObject;
-                }
+                //Debug.Log("DOWN: " + currentPressed);
+                pointerEventData.pointerDrag = currentPressed;
+                pointerEventData.dragging = true;
+                controller.controller.TriggerHapticPulse((ushort)handVibrationStrength);
+                ExecuteEvents.ExecuteHierarchy(hitObject, pointerEventData, ExecuteEvents.pointerClickHandler);
+                ExecuteEvents.Execute(currentPressed, pointerEventData, ExecuteEvents.beginDragHandler);
+                pressedObject = currentPressed;
+                draggedObject = pressedObject;
             }
         }
-        else
+        if (controller.controller.GetHairTriggerUp())
         {
             ReleaseObject();
         }
-
+        if (draggedObject != null)
+        {
+            ExecuteEvents.Execute(draggedObject, pointerEventData, ExecuteEvents.dragHandler);
+        }
         prevHitObject = hitObject;
     }
 
@@ -70,8 +77,14 @@ public class VRPointer : MonoBehaviour
         if (pressedObject)
         {
             ExecuteEvents.Execute(pressedObject, pointerEventData, ExecuteEvents.pointerUpHandler);
-            ExecuteEvents.Execute(pressedObject, pointerEventData, ExecuteEvents.endDragHandler);
+            pressedObject = null;
         }
-        pressedObject = null;
+        if (draggedObject != null)
+        {
+            ExecuteEvents.Execute(draggedObject, pointerEventData, ExecuteEvents.endDragHandler);
+            draggedObject = null;
+        }
+        pointerEventData.dragging = false;
+        pointerEventData.pointerPress = null;
     }
 }
