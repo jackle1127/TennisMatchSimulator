@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class VRControlUIController : MonoBehaviour {
+public class VRControlUIController : ControlUIController
+{
     [SerializeField] private RectTransform controlUIContainer;
     [SerializeField] private Transform playerCamera;
     [SerializeField] private float distanceFromPlayer = 2;
     [SerializeField] private float pitchOffset = 0;
 
 	// Use this for initialization
-	void Start () {
+	protected override void Start () {
 		if (controlUIContainer)
         {
             controlUIContainer.parent = transform;
@@ -21,7 +22,7 @@ public class VRControlUIController : MonoBehaviour {
         Hide();
     }
 
-    public void Show()
+    public override void Show()
     {
         Vector3 cameraForward = new Vector3(playerCamera.forward.x, 0, playerCamera.forward.z).normalized;
         cameraForward *= Mathf.Cos(pitchOffset * Mathf.Deg2Rad);
@@ -31,13 +32,8 @@ public class VRControlUIController : MonoBehaviour {
         gameObject.SetActive(true);
     }
 
-    public void Hide()
+    public override void Hide()
     {
         gameObject.SetActive(false);
-    }
-
-    public bool isVisible
-    {
-        get { return gameObject.activeSelf; }
     }
 }
