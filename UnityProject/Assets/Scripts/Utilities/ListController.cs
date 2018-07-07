@@ -22,10 +22,7 @@ public class ListController : MonoBehaviour
     {
         if (!listContainer) return;
 
-        for (int i = listContainer.childCount - 1; i >= 0; i--)
-        {
-            Destroy(listContainer.GetChild(i).gameObject);
-        }
+        TennisSim.Utility.RemoveAllChildren(listContainer);
 
         foreach (ListItemInformationGroup itemInfo in listItems)
         {

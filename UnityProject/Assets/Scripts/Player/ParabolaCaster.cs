@@ -38,7 +38,7 @@ public class ParabolaCaster : MonoBehaviour
             stepSize, maxSteps);
         for (int i = 0; i < bones.Count; i++)
         {
-            Utility.ApplyMatrixToTransform(bones[i], parabola.GetNormalizedPathMatrix((float)i / (bones.Count - 1)));
+            TennisSim.Utility.ApplyMatrixToTransform(bones[i], parabola.GetNormalizedPathMatrix((float)i / (bones.Count - 1)));
             //bones[i].rotation = Quaternion.AngleAxis(90, bones[i].right) * Quaternion.AngleAxis(90, bones[i].up) * bones[i].rotation;
             bones[i].rotation = Quaternion.AngleAxis(90, bones[i].up) * Quaternion.AngleAxis(-90, bones[i].right) * bones[i].rotation;
         }

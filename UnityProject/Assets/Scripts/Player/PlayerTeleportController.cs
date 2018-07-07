@@ -25,7 +25,7 @@ public class PlayerTeleportController : MonoBehaviour {
             cameraFader.OnStartFade(teleportClearColor, teleportFadeDuration, true);
         }
 
-        Utility.ApplyMatrixToTransformSpecific(transform, destinationMatrix, true, true, false);
+        TennisSim.Utility.ApplyMatrixToTransformSpecific(transform, destinationMatrix, true, true, false);
         /*transform.rotation = Quaternion.Euler(0,
             Utility.VectorAngleOnPlane(transform.forward, playerCamera.forward, Vector3.up), 0)
             * transform.rotation;*/

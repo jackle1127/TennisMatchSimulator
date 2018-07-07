@@ -12,16 +12,17 @@ public class MatchesPanelController : PanelController
     [SerializeField] private PanelController matchPlayerPanelController;
     [SerializeField] private GameObject currentMatchButtonContainer;
     [SerializeField] private GameObject matchNotFound;
+    [SerializeField] private MatchPlayerController matchPlayerController;
 
     public override void Show()
     {
         base.Show();
         matchesList.Clear();
-        string fullPath = Application.dataPath + "/" + matchDataFolder;
+        string fullDirectoryPath = Application.dataPath + "/" + matchDataFolder;
         matchNotFound.SetActive(true);
         try
         {
-            DirectoryInfo matchDataInfo = new DirectoryInfo(fullPath);
+            DirectoryInfo matchDataInfo = new DirectoryInfo(fullDirectoryPath);
             //Debug.Log(fullPath);
             if (matchDataInfo != null)
             {
@@ -33,12 +34,15 @@ public class MatchesPanelController : PanelController
                         matchNotFound.SetActive(false);
                         matchesList.AddItem(fileInfo.Name, delegate ()
                         {
-                            if (rightPanelManager && matchPlayerPanelController)
+                            if (matchPlayerController.LoadJSON(fileInfo.FullName))
                             {
-                                rightPanelManager.ShowPanel(matchPlayerPanelController);
-                                if (currentMatchButtonContainer)
+                                if (rightPanelManager && matchPlayerPanelController)
                                 {
-                                    currentMatchButtonContainer.SetActive(true);
+                                    rightPanelManager.ShowPanel(matchPlayerPanelController);
+                                    if (currentMatchButtonContainer)
+                                    {
+                                        currentMatchButtonContainer.SetActive(true);
+                                    }
                                 }
                             }
                         });
