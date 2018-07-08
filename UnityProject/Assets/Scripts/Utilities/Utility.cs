@@ -91,5 +91,14 @@ namespace TennisSim
                 GameObject.Destroy(parent.GetChild(i).gameObject);
             }
         }
+
+        public static string CapitalizeFirstCharacter(string inputString)
+        {
+            if (inputString.Length > 1)
+            {
+                return inputString.Substring(0, 1).ToUpper() + inputString.Substring(1).ToLower();
+            }
+            return inputString.ToUpper();
+        }
     }
 }
