@@ -94,11 +94,29 @@ namespace TennisSim
 
         public static string CapitalizeFirstCharacter(string inputString)
         {
+            if (inputString == null) return null;
+
             if (inputString.Length > 1)
             {
                 return inputString.Substring(0, 1).ToUpper() + inputString.Substring(1).ToLower();
             }
             return inputString.ToUpper();
+        }
+
+        public static void LogMultiple(params object[] objects)
+        {
+            string log = "";
+            bool first = true;
+            foreach (object currentObject in objects)
+            {
+                if (!first)
+                {
+                    log += ", ";
+                }
+                first = false;
+                log += currentObject;
+            }
+            Debug.Log(log);
         }
     }
 }

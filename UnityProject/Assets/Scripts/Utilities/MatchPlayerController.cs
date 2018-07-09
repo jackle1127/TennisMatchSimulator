@@ -14,6 +14,11 @@ public class MatchPlayerController : MonoBehaviour
     [SerializeField] private Transform shotListContainer;
     [SerializeField] private Text matchInfo;
     [SerializeField] private Slider progressSlider;
+    [SerializeField] private PointPicker player1XYPicker;
+    [SerializeField] private PointPicker player2XYPicker;
+    [SerializeField] private PointPicker heightPicker;
+    [SerializeField] private PointPicker netPicker;
+    [SerializeField] private Transform ball;
 
     private JSONNode matchJSON;
     private List<ShotDataObject> shotDataList = new List<ShotDataObject>();
@@ -22,6 +27,29 @@ public class MatchPlayerController : MonoBehaviour
     private float currentShotTime = 0;
     private bool playing;
 
+    private void Update()
+    {
+        if (playing)
+        {
+            ShotDataObject currentShot = shotDataList[currentShotIndex];
+            ball.position = currentShot.Evaluate(currentShotTime);
+            //Debug.Log(currentShotTime + "/" + currentShot.shotDuration);
+            currentShotTime += Time.deltaTime;
+            if (currentShotTime >= currentShot.shotDuration)
+            {
+                if (currentShotIndex >= shotDataList.Count)
+                {
+                    playing = false;
+                    currentShotIndex--;
+                }
+
+                SetCurrentShot(currentShotIndex + 1);
+
+                UpdateUI();
+            }
+        }
+    }
+
     public bool LoadJSON(string path)
     {
         /*try
@@ -29,7 +57,9 @@ public class MatchPlayerController : MonoBehaviour
         matchJSON = JSON.Parse(TennisSim.Utility.ReadFile(path));
         //UpdateMatchInfo();
         PopulateShotList();
+        AnalyzeShots();
         UpdateUI();
+
         return true;
         /*}
         catch (Exception e)
@@ -38,7 +68,7 @@ public class MatchPlayerController : MonoBehaviour
         }*/
     }
 
-    public void PopulateShotList()
+    private void PopulateShotList()
     {
         shotDataList.Clear();
         jsonShotToShotData.Clear();
@@ -65,6 +95,7 @@ public class MatchPlayerController : MonoBehaviour
                         ShotDataObject beginningShot = null;
 
                         int shotNumber = 0;
+                        int pointBeginningShotIndex = shotDataList.Count;
                         foreach (JSONNode shotData in pointData[1]["shots"])
                         {
                             ShotDataObject shotDataObject = new ShotDataObject();
@@ -73,6 +104,7 @@ public class MatchPlayerController : MonoBehaviour
                             shotDataObject.point = pointData;
                             shotDataObject.shot = shotData;
                             shotDataObject.shotIndexInPoint = shotNumber;
+                            shotDataObject.pointBeginningShotIndex = pointBeginningShotIndex;
                             shotNumber++;
 
                             shotDataList.Add(shotDataObject);
@@ -138,6 +170,52 @@ public class MatchPlayerController : MonoBehaviour
         matchInfoString += "\n";
 
         matchInfo.text = matchInfoString;
+    }
+
+    private void AnalyzeShots()
+    {
+        for (int i = 0; i < shotDataList.Count; i++)
+        {
+            PointPicker playerPointPicker, opponentPointPicker;
+            ShotDataObject shot = shotDataList[i];
+            JSONNode shotJSON = shot.shot;
+
+            shot.shotDuration = .69f;
+            //Debug.Log(shotJSON["player"] + ", " + (shotJSON["player"] == 0));
+            if (shotJSON["player"] == 0)
+            {
+                playerPointPicker = player1XYPicker;
+                opponentPointPicker = player2XYPicker;
+            }
+            else
+            {
+                playerPointPicker = player2XYPicker;
+                opponentPointPicker = player1XYPicker;
+            }
+
+            if (shotJSON["category"] == "serve")
+            {
+                shot.startPoint = playerPointPicker.PickRandomWithMultiplier(0, 0, 0, 0, 1, 1);
+                shot.startPoint.y = heightPicker.PickRandomWithMultiplier(0, .1f, 2).y;
+                //Debug.Log(shot.startPoint);
+            }
+            
+            if (shotJSON["point"] == "no" && shotJSON["error"] == "none")
+            {
+                ShotDataObject nextShot = shotDataList[i + 1];
+                nextShot.startPoint = opponentPointPicker.PickRandom();
+                nextShot.startPoint.y = heightPicker.PickRandomWithMultiplier(0, .1f, 2).y;
+                shot.endPoint = nextShot.startPoint;
+                shot.ProcessShotWithBounce(netPicker.PickRandomWithMultiplier(.8f, 1));
+            }
+            else
+            {
+                shot.endPoint = opponentPointPicker.PickRandom();
+                shot.ProcessShotWithoutBounce(netPicker.PickRandomWithMultiplier(.8f, 1));
+            }
+
+            //Debug.Log(i + ": " + shot.startPoint + ", " + shot.endPoint);
+        }
     }
 
     public void SetCurrentShot(ShotDataObject shotDataObject)
