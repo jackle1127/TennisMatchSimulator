@@ -31,7 +31,7 @@ public class PointPicker : MonoBehaviour {
         return PickPointByWeights(weights);
     }
 
-    public Vector3 PickPointByWeights(float[] weights)
+    public Vector3 PickPointByWeights(params float[] weights)
     {
         if (weights.Length != points.Length) return Vector3.zero;
         float weightSum = 0;

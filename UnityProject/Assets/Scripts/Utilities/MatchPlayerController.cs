@@ -19,17 +19,22 @@ public class MatchPlayerController : MonoBehaviour
     [SerializeField] private PointPicker heightPicker;
     [SerializeField] private PointPicker netPicker;
     [SerializeField] private Transform ball;
+    [SerializeField] private Slider speedSlider;
+    [SerializeField] private Text speedText;
+    [SerializeField] private BallController ballController;
 
     private JSONNode matchJSON;
     private List<ShotDataObject> shotDataList = new List<ShotDataObject>();
+    private List<Button> pointButtons = new List<Button>();
     private Dictionary<JSONNode, ShotDataObject> jsonShotToShotData = new Dictionary<JSONNode, ShotDataObject>();
     private int currentShotIndex;
     private float currentShotTime = 0;
     private bool playing;
+    private bool waitForShot = false;
 
     private void Update()
     {
-        if (playing)
+        if (playing && !waitForShot)
         {
             ShotDataObject currentShot = shotDataList[currentShotIndex];
             ball.position = currentShot.Evaluate(currentShotTime);
@@ -37,14 +42,21 @@ public class MatchPlayerController : MonoBehaviour
             currentShotTime += Time.deltaTime;
             if (currentShotTime >= currentShot.shotDuration)
             {
-                if (currentShotIndex >= shotDataList.Count)
+                if (currentShot.shot["point"] == "no" && currentShot.shot["error"] == "none")
                 {
-                    playing = false;
-                    currentShotIndex--;
+                    SetCurrentShot(currentShotIndex + 1);
                 }
-
-                SetCurrentShot(currentShotIndex + 1);
-
+                else
+                {
+                    if (currentShot.shot["error"] != "none")
+                    {
+                        PointLost();
+                    }
+                    else
+                    {
+                        PointWin();
+                    }
+                }
                 UpdateUI();
             }
         }
@@ -89,6 +101,7 @@ public class MatchPlayerController : MonoBehaviour
                     CreateListItemText("Game " + gameNumber + " (" + gameData[0][0] + "/" + gameData[0][1] + ")", 1);
                     gameNumber++;
 
+                    bool oddPoint = false;
                     foreach (JSONArray pointData in gameData[1]["points"])
                     {
                         Button pointButton = CreateListItemButton("Point (" + PointsToString(pointData[0][0], pointData[0][1]) + ")", 2).GetComponent<Button>();
@@ -105,6 +118,8 @@ public class MatchPlayerController : MonoBehaviour
                             shotDataObject.shot = shotData;
                             shotDataObject.shotIndexInPoint = shotNumber;
                             shotDataObject.pointBeginningShotIndex = pointBeginningShotIndex;
+                            shotDataObject.oddPoint = oddPoint;
+                            shotDataObject.pointButton = pointButton;
                             shotNumber++;
 
                             shotDataList.Add(shotDataObject);
@@ -120,6 +135,10 @@ public class MatchPlayerController : MonoBehaviour
                             SetCurrentShot(beginningShot);
                             Pause();
                         });
+
+                        pointButtons.Add(pointButton);
+
+                        oddPoint = !oddPoint;
                     }
                 }
             }
@@ -160,16 +179,37 @@ public class MatchPlayerController : MonoBehaviour
         matchInfoString += "\n";
         matchInfoString += "\n";
 
-        matchInfoString += "Shot by: " + matchJSON["players"][(int) currentShot.shot["player"]];
+        matchInfoString += "Shot by: " + matchJSON["players"][(int)currentShot.shot["player"]];
         matchInfoString += "\n";
-        matchInfoString += "Shot type: " + TennisSim.Utility.CapitalizeFirstCharacter(currentShot.shot["category"]);
+        matchInfoString += "Shot type: " + TennisSim.Utility.CapitalizeFirstCharacter(TennisSim.Utility.Decamelize(currentShot.shot["shotType"]));
+        matchInfoString += "\n";
+        matchInfoString += "Shot category: " + TennisSim.Utility.CapitalizeFirstCharacter(currentShot.shot["category"]);
         matchInfoString += "\n";
         matchInfoString += "Shot depth: " + TennisSim.Utility.CapitalizeFirstCharacter(currentShot.shot["depth"]);
         matchInfoString += "\n";
         matchInfoString += "Shot direction: " + TennisSim.Utility.CapitalizeFirstCharacter(currentShot.shot["direction"]);
         matchInfoString += "\n";
+        matchInfoString += "Point: " + TennisSim.Utility.CapitalizeFirstCharacter(TennisSim.Utility.Decamelize(currentShot.shot["point"]));
+        matchInfoString += "\n";
+        matchInfoString += "Error: " + TennisSim.Utility.CapitalizeFirstCharacter(TennisSim.Utility.Decamelize(currentShot.shot["error"]));
+        matchInfoString += "\n";
 
         matchInfo.text = matchInfoString;
+
+        foreach (Button pointButton in pointButtons)
+        {
+            ColorBlock temp = pointButton.colors;
+            if (pointButton == currentShot.pointButton)
+            {
+                temp.normalColor = new Color(.106f, 455f, 0);
+            }
+            else
+            {
+                temp.normalColor = Color.black;
+            }
+            pointButton.colors = temp;
+        }
+
     }
 
     private void AnalyzeShots()
@@ -180,7 +220,6 @@ public class MatchPlayerController : MonoBehaviour
             ShotDataObject shot = shotDataList[i];
             JSONNode shotJSON = shot.shot;
 
-            shot.shotDuration = .69f;
             //Debug.Log(shotJSON["player"] + ", " + (shotJSON["player"] == 0));
             if (shotJSON["player"] == 0)
             {
@@ -195,27 +234,266 @@ public class MatchPlayerController : MonoBehaviour
 
             if (shotJSON["category"] == "serve")
             {
-                shot.startPoint = playerPointPicker.PickRandomWithMultiplier(0, 0, 0, 0, 1, 1);
-                shot.startPoint.y = heightPicker.PickRandomWithMultiplier(0, .1f, 2).y;
-                //Debug.Log(shot.startPoint);
+                PickShotStartPosition(null, shot, playerPointPicker);
             }
-            
+
             if (shotJSON["point"] == "no" && shotJSON["error"] == "none")
             {
                 ShotDataObject nextShot = shotDataList[i + 1];
-                nextShot.startPoint = opponentPointPicker.PickRandom();
-                nextShot.startPoint.y = heightPicker.PickRandomWithMultiplier(0, .1f, 2).y;
-                shot.endPoint = nextShot.startPoint;
-                shot.ProcessShotWithBounce(netPicker.PickRandomWithMultiplier(.8f, 1));
+                PickShotStartPosition(shot, nextShot, opponentPointPicker);
+                shot.endPosition = nextShot.startPosition;
+                if (nextShot.shot["shotType"] == "forehandVolley" || nextShot.shot["shotType"] == "backhandVolley")
+                {
+                    shot.shotDuration *= .92f;
+                    shot.ProcessShotWithoutBounce(netPicker.PickRandomWithMultiplier(.8f, 1));
+                }
+                else
+                {
+                    shot.ProcessShotWithBounce(netPicker.PickRandomWithMultiplier(.8f, 1));
+                }
             }
             else
             {
-                shot.endPoint = opponentPointPicker.PickRandom();
-                shot.ProcessShotWithoutBounce(netPicker.PickRandomWithMultiplier(.8f, 1));
+                if (shot.shot["error"] == "net")
+                {
+                    shot.endPosition = playerPointPicker.PickRandomWithMultiplier(1, 1, 1, 0, 0, 0);
+                    shot.endPosition.y = heightPicker.PickRandomWithMultiplier(.03f, 1, 0).y;
+                }
+                else if (shot.shot["error"] == "wide")
+                {
+                    // Randomly pick a side to drop the ball out side
+                    if (UnityEngine.Random.value > .5f)
+                    {
+                        shot.endPosition = opponentPointPicker.PickRandomWithMultiplier(1, 0, 0, 1, 0, 0);
+                    }
+                    else
+                    {
+                        shot.endPosition = opponentPointPicker.PickRandomWithMultiplier(0, 0, 1, 0, 0, 1);
+                    }
+                }
+                else if (shot.shot["error"] == "deep")
+                {
+                    shot.endPosition = opponentPointPicker.PickRandomWithMultiplier(0, 0, 0, 1, 1, 1);
+                }
+                else if (shot.shot["error"] == "wideAndDeep")
+                {
+                    // Randomly pick a side to drop the ball out side
+                    if (UnityEngine.Random.value > .5f)
+                    {
+                        shot.endPosition = opponentPointPicker.PickPointByWeights(0, 0, 0, 1, 0, 0);
+                    }
+                    else
+                    {
+                        shot.endPosition = opponentPointPicker.PickPointByWeights(0, 0, 0, 0, 0, 1);
+                    }
+                }
+                else
+                {
+                    shot.endPosition = opponentPointPicker.PickRandomWithMultiplier(1, 1, 1, .4f, .4f, .4f);
+                }
+                if (shot.shot["error"] != "net")
+                {
+                    shot.ProcessShotWithoutBounce(netPicker.PickRandomWithMultiplier(.8f, 1));
+                    shot.shotDuration = UnityEngine.Random.Range(.8f, .85f);
+                }
+                else
+                {
+                    Vector3 midPoint = Vector3.Lerp(shot.startPosition, shot.endPosition, .5f) + Vector3.up * UnityEngine.Random.Range(.17f, .41f);
+                    shot.ProcessShotWithoutBounce(midPoint);
+                    shot.shotDuration = UnityEngine.Random.Range(.37f, .56f);
+                    TennisSim.Utility.LogMultiple(shot.startPosition, midPoint, shot.endPosition);
+                }
             }
-
-            //Debug.Log(i + ": " + shot.startPoint + ", " + shot.endPoint);
+            //Debug.Log(i + ": " + shot.startPosition + ", " + shot.endPosition);
         }
+    }
+
+    private void PickShotStartPosition(ShotDataObject prevShot, ShotDataObject currentShot, PointPicker pointPicker)
+    {
+        if (prevShot != null)
+        {
+            float[] xyWeightMultiplier = new float[6];
+            float[] heightWeights = new float[3];
+            if (prevShot.shot["category"] == "serve")
+            {
+                // Current rally can only be around the cross course area.
+                xyWeightMultiplier[1] = .9f;
+                xyWeightMultiplier[4] = 1;
+
+                if (prevShot.oddPoint)
+                {
+                    xyWeightMultiplier[0] = .9f;
+                    xyWeightMultiplier[3] = .9f;
+
+                    if (prevShot.shot["direction"] == "wide")
+                    {
+                        xyWeightMultiplier[0] *= 3;
+                        xyWeightMultiplier[3] *= 3;
+                    }
+                }
+                else
+                {
+                    xyWeightMultiplier[2] = .9f;
+                    xyWeightMultiplier[5] = .9f;
+
+                    if (prevShot.shot["direction"] == "wide")
+                    {
+                        xyWeightMultiplier[2] *= 3;
+                        xyWeightMultiplier[5] *= 3;
+                    }
+                }
+
+                if (prevShot.shot["direction"] == "downTheT")
+                {
+                    xyWeightMultiplier[1] *= 4;
+                    xyWeightMultiplier[4] *= 4;
+                }
+            }
+            else
+            {
+                xyWeightMultiplier[0] = 1;
+                xyWeightMultiplier[1] = 1;
+                xyWeightMultiplier[2] = 1;
+                xyWeightMultiplier[3] = 1;
+                xyWeightMultiplier[4] = 1;
+                xyWeightMultiplier[5] = 1;
+
+                if (prevShot.shot["direction"] == "right")
+                {
+                    xyWeightMultiplier[2] *= 1.4f;
+                    xyWeightMultiplier[5] *= 1.4f;
+                }
+                if (prevShot.shot["direction"] == "downTheCourt")
+                {
+                    xyWeightMultiplier[1] *= 1.4f;
+                    xyWeightMultiplier[4] *= 1.4f;
+                }
+                if (prevShot.shot["direction"] == "left")
+                {
+                    xyWeightMultiplier[0] *= 1.4f;
+                    xyWeightMultiplier[3] *= 1.4f;
+                }
+
+                if (currentShot.shot["shotType"] == "forehandGround" || currentShot.shot["shotType"] == "forehandSlice"
+                    || currentShot.shot["shotType"] == "forehandVolley" || currentShot.shot["shotType"] == "forehandLob"
+                    || currentShot.shot["shotType"] == "forehandHalfVolley" || currentShot.shot["shotType"] == "forehandSwingingVolley")
+                {
+                    xyWeightMultiplier[2] *= 1.4f;
+                    xyWeightMultiplier[5] *= 1.4f;
+                }
+                if (currentShot.shot["shotType"] == "backhandGround" || currentShot.shot["shotType"] == "backhandSlice"
+                    || currentShot.shot["shotType"] == "backhandVolley" || currentShot.shot["shotType"] == "backhandLob"
+                    || currentShot.shot["shotType"] == "backhandHalfVolley" || currentShot.shot["shotType"] == "backhandSwingingVolley")
+                {
+                    xyWeightMultiplier[0] *= 1.4f;
+                    xyWeightMultiplier[3] *= 1.4f;
+                }
+                if (currentShot.shot["shotType"] == "forehandOverhead" || currentShot.shot["shotType"] == "backhandOverhead")
+                {
+                    xyWeightMultiplier[0] *= 1.4f;
+                    xyWeightMultiplier[1] *= 1.4f;
+                    xyWeightMultiplier[2] *= 1.4f;
+                }
+                if (currentShot.shot["shotType"] == "forehandGround" || currentShot.shot["shotType"] == "backhandGround"
+                    || currentShot.shot["shotType"] == "forehandDropShot" || currentShot.shot["shotType"] == "backhandDropShot")
+                {
+                    xyWeightMultiplier[3] *= 1.4f;
+                    xyWeightMultiplier[4] *= 1.4f;
+                    xyWeightMultiplier[5] *= 1.4f;
+                }
+
+                if (prevShot.shot["position"] == "approach")
+                {
+                    xyWeightMultiplier[1] *= 1.4f;
+                }
+                if (prevShot.shot["position"] == "net")
+                {
+                    xyWeightMultiplier[1] *= 4f;
+                }
+                if (prevShot.shot["position"] == "baseline")
+                {
+                    xyWeightMultiplier[3] *= 2;
+                    xyWeightMultiplier[4] *= 2;
+                    xyWeightMultiplier[5] *= 2;
+                }
+
+                if (prevShot.shot["depth"] == "serviceBox")
+                {
+                    xyWeightMultiplier[0] *= 4;
+                    xyWeightMultiplier[1] *= 4;
+                    xyWeightMultiplier[2] *= 4;
+                }
+                if (prevShot.shot["depth"] == "baseline")
+                {
+                    xyWeightMultiplier[3] *= 4;
+                    xyWeightMultiplier[4] *= 4;
+                    xyWeightMultiplier[5] *= 4;
+                }
+
+                if (prevShot.shot["shotType"] == "forehandLob" || prevShot.shot["shotType"] == "backhandLob")
+                {
+                    xyWeightMultiplier[3] *= 2;
+                    xyWeightMultiplier[4] *= 2;
+                    xyWeightMultiplier[5] *= 2;
+                }
+            }
+            // Height and speed picking.
+            if (currentShot.shot["shotType"] == "forehandGround" || currentShot.shot["shotType"] == "backhandGround"
+                || currentShot.shot["shotType"] == "forehandLob" || currentShot.shot["shotType"] == "backhandLob"
+                || currentShot.shot["shotType"] == "trick" || currentShot.shot["shotType"] == "unknown")
+            {
+                heightWeights[0] = 1;
+                heightWeights[1] = 1;
+            }
+            if (currentShot.shot["shotType"] == "forehandSlice" || currentShot.shot["shotType"] == "backhandSlice")
+            {
+                heightWeights[0] = 1;
+                heightWeights[1] = 3;
+            }
+            if (currentShot.shot["shotType"] == "forehandVolley" || currentShot.shot["shotType"] == "backhandVolley")
+            {
+                heightWeights[1] = 4;
+            }
+            if (currentShot.shot["shotType"] == "forehandDropShot" || currentShot.shot["shotType"] == "backhandDropShot")
+            {
+                heightWeights[1] = 4;
+            }
+            if (currentShot.shot["shotType"] == "forehandHalfVolley" || currentShot.shot["shotType"] == "backhandHalfVolley")
+            {
+                heightWeights[0] = 6;
+                heightWeights[1] = 2;
+            }
+            if (currentShot.shot["shotType"] == "forehandSwingingVolley" || currentShot.shot["shotType"] == "backhandSwingingVolley")
+            {
+                heightWeights[1] = 6;
+                heightWeights[2] = 2;
+            }
+            currentShot.shotDuration = UnityEngine.Random.Range(1.1f, 1.2f);
+            currentShot.startPosition = pointPicker.PickRandomWithMultiplier(xyWeightMultiplier);
+
+            // We want to pick the exact height because of animation complication.
+            // This may change later on.
+            currentShot.startPosition.y = heightPicker.PickPointByWeights(heightWeights).y;
+            if (currentShot.startPosition.y == 0 || currentShot.startPosition.y == float.NaN)
+            {
+                currentShot.startPosition.y = heightPicker.PickPointByWeights(1, 2, 0).y;
+            }
+        }
+        else
+        {
+            // Current shot is a serve
+            if (currentShot.oddPoint)
+            {
+                currentShot.startPosition = pointPicker.PickRandomWithMultiplier(0, 0, 0, 1, 2, 0);
+            }
+            else
+            {
+                currentShot.startPosition = pointPicker.PickRandomWithMultiplier(0, 0, 0, 0, 2, 1);
+            }
+            currentShot.startPosition.y = heightPicker.PickRandomWithMultiplier(0, .1f, 2).y;
+            currentShot.shotDuration = UnityEngine.Random.Range(.9f, .96f);
+        }
+
     }
 
     public void SetCurrentShot(ShotDataObject shotDataObject)
@@ -226,7 +504,13 @@ public class MatchPlayerController : MonoBehaviour
     public void SetCurrentShot(int shotIndex)
     {
         currentShotIndex = shotIndex;
+        if (currentShotIndex >= shotDataList.Count)
+        {
+            playing = false;
+            currentShotIndex = 0;
+        }
         currentShotTime = 0;
+        ball.position = shotDataList[currentShotIndex].Evaluate(currentShotTime);
         UpdateUI();
     }
 
@@ -306,5 +590,40 @@ public class MatchPlayerController : MonoBehaviour
         playing = false;
         pauseButton.SetActive(false);
         playButton.SetActive(true);
+    }
+
+    public void ProgressSliderHandler()
+    {
+        int shotIndexInPoint = (int)progressSlider.value;
+        ShotDataObject currentShot = shotDataList[currentShotIndex];
+        SetCurrentShot(currentShot.pointBeginningShotIndex + shotIndexInPoint);
+    }
+
+    public void SpeedSliderHandler()
+    {
+        Time.timeScale = Mathf.Pow(1.25f, speedSlider.value);
+        speedText.text = "Speed " + Time.timeScale.ToString("##.#") + "x";
+    }
+
+    private void PointWin()
+    {
+        waitForShot = true;
+        ballController.SetControlled(false);
+        StartCoroutine(TempWaitCoroutine());
+    }
+
+    private void PointLost()
+    {
+        waitForShot = true;
+        ballController.SetControlled(false);
+        StartCoroutine(TempWaitCoroutine());
+    }
+
+    private IEnumerator TempWaitCoroutine()
+    {
+        yield return new WaitForSeconds(1.5f);
+        ballController.SetControlled(true);
+        SetCurrentShot(currentShotIndex + 1);
+        waitForShot = false;
     }
 }

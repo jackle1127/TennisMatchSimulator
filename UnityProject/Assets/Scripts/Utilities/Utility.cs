@@ -103,6 +103,23 @@ namespace TennisSim
             return inputString.ToUpper();
         }
 
+        public static string Decamelize(string camelCaseString)
+        {
+            if (camelCaseString == null) return null;
+
+            string result = "" + camelCaseString[0];
+            for (int i = 1; i < camelCaseString.Length; i++)
+            {
+                if (char.IsUpper(camelCaseString[i]))
+                {
+                    result += " ";
+                }
+                result += camelCaseString[i];
+            }
+
+            return result;
+        }
+
         public static void LogMultiple(params object[] objects)
         {
             string log = "";
