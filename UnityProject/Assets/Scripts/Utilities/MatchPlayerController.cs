@@ -502,6 +502,10 @@ public class MatchPlayerController : MonoBehaviour
         }
         else
         {
+            GetCurrentPlayerController().shotCallback += delegate ()
+            {
+                StartCoroutine(MakeCurrentPlayerMoveTowardsCenter());
+            };
             SetOpponentShot();
         }
 
@@ -642,7 +646,9 @@ public class MatchPlayerController : MonoBehaviour
             waitForServe = false;
             SetOpponentShot();
         };
-        servingPlayer.MakeShot(shotDataList[currentShotIndex].startPosition, "serve", 2f);
+        Vector3 servingPoint = shotDataList[currentShotIndex].startPosition;
+        float distanceToServingPoint = (servingPlayer.transform.position - servingPoint).magnitude;
+        servingPlayer.MakeShot(servingPoint, "serve", distanceToServingPoint * .85f);
     }
 
     private TennisPlayerController GetCurrentPlayerController()
@@ -669,11 +675,43 @@ public class MatchPlayerController : MonoBehaviour
         }
     }
 
+    private PointPicker GetCurrentPlayerPointPicker()
+    {
+        if (shotDataList[currentShotIndex].shot["player"] == 0)
+        {
+            return player1XYPicker;
+        }
+        else
+        {
+            return player2XYPicker;
+        }
+    }
+
+    private PointPicker GetCurrentOpponentPointPicker()
+    {
+        if (shotDataList[currentShotIndex].shot["player"] == 0)
+        {
+            return player2XYPicker;
+        }
+        else
+        {
+            return player1XYPicker;
+        }
+    }
+
+
     private IEnumerator TempWaitCoroutine()
     {
         yield return new WaitForSeconds(1.5f);
         ballController.SetControlled(true);
         SetCurrentShot(currentShotIndex + 1);
+        //Serve();
+    }
+
+    private IEnumerator MakeCurrentPlayerMoveTowardsCenter()
+    {
+        yield return new WaitForSeconds(1.2f);
+        GetCurrentPlayerController().RunTowards(GetCurrentPlayerPointPicker().PickPointByWeights(1, 1, 1, 1, 1, 1), 1.2f);
         //Serve();
     }
 }
