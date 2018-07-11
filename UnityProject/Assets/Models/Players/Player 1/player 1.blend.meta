@@ -1,0 +1,516 @@
+fileFormatVersion: 2
+guid: 80f371cf2eea5f6469db49c5a943e3d9
+ModelImporter:
+  serializedVersion: 22
+  fileIDToRecycleName:
+    100000: Armature
+    100002: Backhand_Drop_Shot_Point
+    100004: Backhand_Ground_Point
+    100006: Backhand_Half_Volley_Point
+    100008: Backhand_Slice_Point
+    100010: Backhand_Swinging_Volley_Point
+    100012: Backhand_Volley_Point
+    100014: Ball
+    100016: Body
+    100018: Bottoms
+    100020: default
+    100022: Eyelashes
+    100024: Forehand_Drop_Shot_Point
+    100026: Forehand_Ground_Point
+    100028: Forehand_Half_Volley_Point
+    100030: Forehand_Slice_Point
+    100032: Forehand_Swinging_Volley_Point
+    100034: Forehand_Volley_Point
+    100036: Hair
+    100038: mixamorig_Head
+    100040: mixamorig_HeadTop_End
+    100042: mixamorig_Hips
+    100044: mixamorig_LeftArm
+    100046: mixamorig_LeftEye
+    100048: mixamorig_LeftFoot
+    100050: mixamorig_LeftForeArm
+    100052: mixamorig_LeftHand
+    100054: mixamorig_LeftHandIndex1
+    100056: mixamorig_LeftHandIndex2
+    100058: mixamorig_LeftHandIndex3
+    100060: mixamorig_LeftHandIndex4
+    100062: mixamorig_LeftHandThumb1
+    100064: mixamorig_LeftHandThumb2
+    100066: mixamorig_LeftHandThumb3
+    100068: mixamorig_LeftHandThumb4
+    100070: mixamorig_LeftLeg
+    100072: mixamorig_LeftShoulder
+    100074: mixamorig_LeftToe_End
+    100076: mixamorig_LeftToeBase
+    100078: mixamorig_LeftUpLeg
+    100080: mixamorig_Neck
+    100082: mixamorig_RightArm
+    100084: mixamorig_RightEye
+    100086: mixamorig_RightFoot
+    100088: mixamorig_RightForeArm
+    100090: mixamorig_RightHand
+    100092: mixamorig_RightHandIndex1
+    100094: mixamorig_RightHandIndex2
+    100096: mixamorig_RightHandIndex3
+    100098: mixamorig_RightHandIndex4
+    100100: mixamorig_RightHandThumb1
+    100102: mixamorig_RightHandThumb2
+    100104: mixamorig_RightHandThumb3
+    100106: mixamorig_RightHandThumb4
+    100108: mixamorig_RightLeg
+    100110: mixamorig_RightShoulder
+    100112: mixamorig_RightToe_End
+    100114: mixamorig_RightToeBase
+    100116: mixamorig_RightUpLeg
+    100118: mixamorig_Spine
+    100120: mixamorig_Spine1
+    100122: mixamorig_Spine2
+    100124: //RootNode
+    100126: Racket
+    100128: Serve_Point
+    100130: Shoes
+    100132: Shot_Points_Container
+    100134: Tops
+    100136: Container
+    100138: Parent
+    400000: Armature
+    400002: Backhand_Drop_Shot_Point
+    400004: Backhand_Ground_Point
+    400006: Backhand_Half_Volley_Point
+    400008: Backhand_Slice_Point
+    400010: Backhand_Swinging_Volley_Point
+    400012: Backhand_Volley_Point
+    400014: Ball
+    400016: Body
+    400018: Bottoms
+    400020: default
+    400022: Eyelashes
+    400024: Forehand_Drop_Shot_Point
+    400026: Forehand_Ground_Point
+    400028: Forehand_Half_Volley_Point
+    400030: Forehand_Slice_Point
+    400032: Forehand_Swinging_Volley_Point
+    400034: Forehand_Volley_Point
+    400036: Hair
+    400038: mixamorig_Head
+    400040: mixamorig_HeadTop_End
+    400042: mixamorig_Hips
+    400044: mixamorig_LeftArm
+    400046: mixamorig_LeftEye
+    400048: mixamorig_LeftFoot
+    400050: mixamorig_LeftForeArm
+    400052: mixamorig_LeftHand
+    400054: mixamorig_LeftHandIndex1
+    400056: mixamorig_LeftHandIndex2
+    400058: mixamorig_LeftHandIndex3
+    400060: mixamorig_LeftHandIndex4
+    400062: mixamorig_LeftHandThumb1
+    400064: mixamorig_LeftHandThumb2
+    400066: mixamorig_LeftHandThumb3
+    400068: mixamorig_LeftHandThumb4
+    400070: mixamorig_LeftLeg
+    400072: mixamorig_LeftShoulder
+    400074: mixamorig_LeftToe_End
+    400076: mixamorig_LeftToeBase
+    400078: mixamorig_LeftUpLeg
+    400080: mixamorig_Neck
+    400082: mixamorig_RightArm
+    400084: mixamorig_RightEye
+    400086: mixamorig_RightFoot
+    400088: mixamorig_RightForeArm
+    400090: mixamorig_RightHand
+    400092: mixamorig_RightHandIndex1
+    400094: mixamorig_RightHandIndex2
+    400096: mixamorig_RightHandIndex3
+    400098: mixamorig_RightHandIndex4
+    400100: mixamorig_RightHandThumb1
+    400102: mixamorig_RightHandThumb2
+    400104: mixamorig_RightHandThumb3
+    400106: mixamorig_RightHandThumb4
+    400108: mixamorig_RightLeg
+    400110: mixamorig_RightShoulder
+    400112: mixamorig_RightToe_End
+    400114: mixamorig_RightToeBase
+    400116: mixamorig_RightUpLeg
+    400118: mixamorig_Spine
+    400120: mixamorig_Spine1
+    400122: mixamorig_Spine2
+    400124: //RootNode
+    400126: Racket
+    400128: Serve_Point
+    400130: Shoes
+    400132: Shot_Points_Container
+    400134: Tops
+    400136: Container
+    400138: Parent
+    2100000: Ball
+    2100002: Topmat_001
+    2100004: Hairmat_001
+    2100006: Bottommat_001
+    2100008: Shoesmat_001
+    2100010: Bodymat_001
+    2100012: GRIP
+    2100014: Nubs
+    2100016: STRINGS_WHITE
+    2100018: Glossy-Black3
+    2100020: RACKET_HEAD
+    2300000: Ball
+    2300002: Racket
+    3300000: Ball
+    3300002: Racket
+    4300000: Ball
+    4300002: Tops
+    4300004: Hair
+    4300006: Bottoms
+    4300008: Shoes
+    4300010: Body
+    4300012: default
+    4300014: Eyelashes
+    4300016: Racket
+    7400000: Run
+    7400002: Idle
+    7400004: Serve
+    7400006: Forehand Ground
+    7400008: Backhand Ground
+    7400010: Forehand Slice
+    7400012: Backhand Slice
+    9500000: //RootNode
+    13700000: Body
+    13700002: Bottoms
+    13700004: default
+    13700006: Eyelashes
+    13700008: Hair
+    13700010: Shoes
+    13700012: Tops
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Bodymat
+    second: {fileID: 2100000, guid: 35db69e679375fb429f9a13fb6d78c2a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Bottommat
+    second: {fileID: 2100000, guid: 51eb5234273ca5f4d8d3b1fd00f2b534, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GRIP
+    second: {fileID: 2100000, guid: bc6ef03ff4bad5344bb95e1ea0d9699a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Glossy-Black3
+    second: {fileID: 2100000, guid: 97401359069dd6f449d59ecaf2a8176e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Hairmat
+    second: {fileID: 2100000, guid: 1d0cb9fc73e11e741ba548348453916a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Nubs
+    second: {fileID: 2100000, guid: 62d4eb11921ddb84baa1b837e973f7b6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: RACKET_HEAD
+    second: {fileID: 2100000, guid: 351c1d48a93265b47959ed65725ad229, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: STRINGS_WHITE
+    second: {fileID: 2100000, guid: f4031b73b79e19e4282671de33b0e695, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Shoesmat
+    second: {fileID: 2100000, guid: 5785bc0736617d84d861575ef1d0b080, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: TennisBall
+    second: {fileID: 2100000, guid: e37015bad09f4c54990966fad2bb1c94, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Topmat
+    second: {fileID: 2100000, guid: eb9608920d77ac24199fa20e5861bfd6, type: 2}
+  materials:
+    importMaterials: 1
+    materialName: 1
+    materialSearch: 1
+    materialLocation: 0
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: Idle
+      takeName: ArmatureAction
+      firstFrame: -1
+      lastFrame: 39
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Run
+      takeName: Default Take
+      firstFrame: 59
+      lastFrame: 99
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Serve
+      takeName: Default Take
+      firstFrame: 119
+      lastFrame: 169
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Forehand Ground
+      takeName: Default Take
+      firstFrame: 179
+      lastFrame: 209
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Backhand Ground
+      takeName: Default Take
+      firstFrame: 219
+      lastFrame: 249
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Forehand Slice
+      takeName: Default Take
+      firstFrame: 259
+      lastFrame: 289
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Backhand Slice
+      takeName: Default Take
+      firstFrame: 299
+      lastFrame: 329
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

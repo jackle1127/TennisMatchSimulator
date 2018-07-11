@@ -41,4 +41,9 @@ public class BallController : MonoBehaviour
             rb.velocity = velocity;
         }
     }
+
+    public void SetBallVisible(bool visible)
+    {
+        ballTransform.gameObject.SetActive(visible);
+    }
 }

@@ -22,6 +22,8 @@ public class MatchPlayerController : MonoBehaviour
     [SerializeField] private Slider speedSlider;
     [SerializeField] private Text speedText;
     [SerializeField] private BallController ballController;
+    [SerializeField] private TennisPlayerController player1Controller;
+    [SerializeField] private TennisPlayerController player2Controller;
 
     private JSONNode matchJSON;
     private List<ShotDataObject> shotDataList = new List<ShotDataObject>();
@@ -30,11 +32,11 @@ public class MatchPlayerController : MonoBehaviour
     private int currentShotIndex;
     private float currentShotTime = 0;
     private bool playing;
-    private bool waitForShot = false;
+    private bool waitForServe = false;
 
     private void Update()
     {
-        if (playing && !waitForShot)
+        if (playing && !waitForServe)
         {
             ShotDataObject currentShot = shotDataList[currentShotIndex];
             ball.position = currentShot.Evaluate(currentShotTime);
@@ -217,6 +219,7 @@ public class MatchPlayerController : MonoBehaviour
         for (int i = 0; i < shotDataList.Count; i++)
         {
             PointPicker playerPointPicker, opponentPointPicker;
+            TennisPlayerController playerController, opponentController;
             ShotDataObject shot = shotDataList[i];
             JSONNode shotJSON = shot.shot;
 
@@ -225,22 +228,26 @@ public class MatchPlayerController : MonoBehaviour
             {
                 playerPointPicker = player1XYPicker;
                 opponentPointPicker = player2XYPicker;
+                playerController = player1Controller;
+                opponentController = player2Controller;
             }
             else
             {
                 playerPointPicker = player2XYPicker;
                 opponentPointPicker = player1XYPicker;
+                playerController = player2Controller;
+                opponentController = player1Controller;
             }
 
             if (shotJSON["category"] == "serve")
             {
-                PickShotStartPosition(null, shot, playerPointPicker);
+                PickShotStartPosition(null, shot, playerPointPicker, playerController);
             }
 
             if (shotJSON["point"] == "no" && shotJSON["error"] == "none")
             {
                 ShotDataObject nextShot = shotDataList[i + 1];
-                PickShotStartPosition(shot, nextShot, opponentPointPicker);
+                PickShotStartPosition(shot, nextShot, opponentPointPicker, playerController);
                 shot.endPosition = nextShot.startPosition;
                 if (nextShot.shot["shotType"] == "forehandVolley" || nextShot.shot["shotType"] == "backhandVolley")
                 {
@@ -301,14 +308,14 @@ public class MatchPlayerController : MonoBehaviour
                     Vector3 midPoint = Vector3.Lerp(shot.startPosition, shot.endPosition, .5f) + Vector3.up * UnityEngine.Random.Range(.17f, .41f);
                     shot.ProcessShotWithoutBounce(midPoint);
                     shot.shotDuration = UnityEngine.Random.Range(.37f, .56f);
-                    TennisSim.Utility.LogMultiple(shot.startPosition, midPoint, shot.endPosition);
+                    //TennisSim.Utility.LogMultiple(shot.startPosition, midPoint, shot.endPosition);
                 }
             }
             //Debug.Log(i + ": " + shot.startPosition + ", " + shot.endPosition);
         }
     }
 
-    private void PickShotStartPosition(ShotDataObject prevShot, ShotDataObject currentShot, PointPicker pointPicker)
+    private void PickShotStartPosition(ShotDataObject prevShot, ShotDataObject currentShot, PointPicker pointPicker, TennisPlayerController playerController)
     {
         if (prevShot != null)
         {
@@ -437,47 +444,17 @@ public class MatchPlayerController : MonoBehaviour
                     xyWeightMultiplier[5] *= 2;
                 }
             }
-            // Height and speed picking.
-            if (currentShot.shot["shotType"] == "forehandGround" || currentShot.shot["shotType"] == "backhandGround"
-                || currentShot.shot["shotType"] == "forehandLob" || currentShot.shot["shotType"] == "backhandLob"
-                || currentShot.shot["shotType"] == "trick" || currentShot.shot["shotType"] == "unknown")
-            {
-                heightWeights[0] = 1;
-                heightWeights[1] = 1;
-            }
-            if (currentShot.shot["shotType"] == "forehandSlice" || currentShot.shot["shotType"] == "backhandSlice")
-            {
-                heightWeights[0] = 1;
-                heightWeights[1] = 3;
-            }
-            if (currentShot.shot["shotType"] == "forehandVolley" || currentShot.shot["shotType"] == "backhandVolley")
-            {
-                heightWeights[1] = 4;
-            }
-            if (currentShot.shot["shotType"] == "forehandDropShot" || currentShot.shot["shotType"] == "backhandDropShot")
-            {
-                heightWeights[1] = 4;
-            }
-            if (currentShot.shot["shotType"] == "forehandHalfVolley" || currentShot.shot["shotType"] == "backhandHalfVolley")
-            {
-                heightWeights[0] = 6;
-                heightWeights[1] = 2;
-            }
-            if (currentShot.shot["shotType"] == "forehandSwingingVolley" || currentShot.shot["shotType"] == "backhandSwingingVolley")
-            {
-                heightWeights[1] = 6;
-                heightWeights[2] = 2;
-            }
+
             currentShot.shotDuration = UnityEngine.Random.Range(1.1f, 1.2f);
             currentShot.startPosition = pointPicker.PickRandomWithMultiplier(xyWeightMultiplier);
 
-            // We want to pick the exact height because of animation complication.
-            // This may change later on.
-            currentShot.startPosition.y = heightPicker.PickPointByWeights(heightWeights).y;
             if (currentShot.startPosition.y == 0 || currentShot.startPosition.y == float.NaN)
             {
                 currentShot.startPosition.y = heightPicker.PickPointByWeights(1, 2, 0).y;
             }
+            // We want to pick the exact height because of animation complication.
+            // This may change later on.
+            currentShot.startPosition.y = playerController.GetShotPoint(currentShot.shot["shotType"]).y;
         }
         else
         {
@@ -490,10 +467,9 @@ public class MatchPlayerController : MonoBehaviour
             {
                 currentShot.startPosition = pointPicker.PickRandomWithMultiplier(0, 0, 0, 0, 2, 1);
             }
-            currentShot.startPosition.y = heightPicker.PickRandomWithMultiplier(0, .1f, 2).y;
             currentShot.shotDuration = UnityEngine.Random.Range(.9f, .96f);
+            currentShot.startPosition.y = playerController.GetShotPoint("serve").y;
         }
-
     }
 
     public void SetCurrentShot(ShotDataObject shotDataObject)
@@ -508,10 +484,42 @@ public class MatchPlayerController : MonoBehaviour
         {
             playing = false;
             currentShotIndex = 0;
+            return;
         }
         currentShotTime = 0;
-        ball.position = shotDataList[currentShotIndex].Evaluate(currentShotTime);
+        ShotDataObject currentShot = shotDataList[currentShotIndex];
+        ball.position = currentShot.Evaluate(currentShotTime);
+        if (currentShot.shot["category"] == "serve")
+        {
+            if (playing)
+            {
+                Serve();
+            }
+            else
+            {
+                waitForServe = true;
+            }
+        }
+        else
+        {
+            SetOpponentShot();
+        }
+
         UpdateUI();
+    }
+
+    private void SetOpponentShot()
+    {
+        if (currentShotIndex < shotDataList.Count - 1)
+        {
+            ShotDataObject currentShot = shotDataList[currentShotIndex];
+            if (currentShot.shot["point"] == "no" && currentShot.shot["error"] == "none")
+            {
+                ShotDataObject nextShot = shotDataList[currentShotIndex + 1];
+                TennisPlayerController opponentController = GetCurrentOpponentController();
+                opponentController.MakeShot(nextShot.startPosition, nextShot.shot["shotType"], currentShot.shotDuration);
+            }
+        }
     }
 
     private string PointsToString(int point1, int point2)
@@ -583,6 +591,10 @@ public class MatchPlayerController : MonoBehaviour
         playing = true;
         pauseButton.SetActive(true);
         playButton.SetActive(false);
+        if (waitForServe)
+        {
+            Serve();
+        }
     }
 
     public void Pause()
@@ -607,16 +619,54 @@ public class MatchPlayerController : MonoBehaviour
 
     private void PointWin()
     {
-        waitForShot = true;
+        waitForServe = true;
         ballController.SetControlled(false);
         StartCoroutine(TempWaitCoroutine());
     }
 
     private void PointLost()
     {
-        waitForShot = true;
+        waitForServe = true;
         ballController.SetControlled(false);
         StartCoroutine(TempWaitCoroutine());
+    }
+
+    private void Serve()
+    {
+        waitForServe = true;
+        TennisPlayerController servingPlayer = GetCurrentPlayerController();
+        ballController.SetBallVisible(false);
+        servingPlayer.shotCallback += delegate ()
+        {
+            ballController.SetBallVisible(true);
+            waitForServe = false;
+            SetOpponentShot();
+        };
+        servingPlayer.MakeShot(shotDataList[currentShotIndex].startPosition, "serve", 2f);
+    }
+
+    private TennisPlayerController GetCurrentPlayerController()
+    {
+        if (shotDataList[currentShotIndex].shot["player"] == 0)
+        {
+            return player1Controller;
+        }
+        else
+        {
+            return player2Controller;
+        }
+    }
+
+    private TennisPlayerController GetCurrentOpponentController()
+    {
+        if (shotDataList[currentShotIndex].shot["player"] == 0)
+        {
+            return player2Controller;
+        }
+        else
+        {
+            return player1Controller;
+        }
     }
 
     private IEnumerator TempWaitCoroutine()
@@ -624,6 +674,6 @@ public class MatchPlayerController : MonoBehaviour
         yield return new WaitForSeconds(1.5f);
         ballController.SetControlled(true);
         SetCurrentShot(currentShotIndex + 1);
-        waitForShot = false;
+        //Serve();
     }
 }
