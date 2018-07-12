@@ -10,7 +10,7 @@ public class MenuToggler : MonoBehaviour {
     
     // Update is called once per frame
     void Update () {
-		if (Input.GetButtonDown("Submit"))
+		if (Input.GetButtonDown("Submit") || Input.GetButtonDown("Cancel"))
         {
             if (!controlUIController.isVisible)
             {
